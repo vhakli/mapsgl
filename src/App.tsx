@@ -1,10 +1,6 @@
 import { useState } from "react";
-import ReactMap, { useMap } from "react-map-gl";
-import ReactMapsGL, {
-  WeatherLayer,
-  DataInspector,
-  LegendControl,
-} from "@aerisweather/react-mapsgl";
+import ReactMap, { MapRef } from "react-map-gl";
+import ReactMapsGL, { WeatherLayer } from "@aerisweather/react-mapsgl";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 import "@aerisweather/mapsgl/dist/mapsgl.css";
@@ -17,28 +13,28 @@ const MapController = ReactMapsGL({
 });
 
 const MapView = () => {
-  const [ready, setReady] = useState(false);
-  const { map } = useMap();
+  const [map, setMap] = useState<MapRef | null>();
+  const [layer, setLayer] = useState(true);
 
   return (
-    <ReactMap
-      id="map"
-      mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
-      mapStyle="mapbox://styles/mapbox/light-v9"
-      onLoad={() => setReady(true)}
-      style={{
-        width: 800,
-        height: 600,
-      }}
-    >
-      {ready && (
+    <>
+      <ReactMap
+        ref={(ref) => setMap(ref)}
+        mapboxAccessToken={import.meta.env.VITE_MAPBOX_TOKEN}
+        mapStyle="mapbox://styles/mapbox/light-v9"
+        style={{
+          width: 800,
+          height: 600,
+        }}
+      >
         <MapController strategy="mapbox" map={map?.getMap()}>
-          <DataInspector event="move" />
-          <LegendControl />
-          <WeatherLayer id="wind-particles" />
+          {layer && <WeatherLayer id="wind-particles" />}
         </MapController>
-      )}
-    </ReactMap>
+      </ReactMap>
+      <button onClick={() => setLayer(!layer)}>
+        {layer ? "layer off" : "layer on"}
+      </button>
+    </>
   );
 };
 
